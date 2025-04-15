@@ -1,11 +1,12 @@
 import express from "express";
 
-import { PORT } from "./config/env.ts";
+import { PORT } from "./config/env.js";
 
-import authRouter from "./routes/auth.routes.ts";
-import userRouter from "./routes/user.routes.ts";
-import postRouter from "./routes/post.routes.ts";
-import commentRouter from "./routes/comment.routes.ts";
+import authRouter from "./routes/auth.routes";
+import userRouter from "./routes/user.routes";
+import postRouter from "./routes/post.routes";
+import commentRouter from "./routes/comment.routes";
+import connectToDatabase from "./database/mongodb";
 
 const app = express();
 
@@ -18,8 +19,9 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  await connectToDatabase();
 });
 
 export default app;
