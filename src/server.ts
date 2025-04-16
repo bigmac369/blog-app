@@ -7,13 +7,19 @@ import userRouter from "./routes/user.routes";
 import postRouter from "./routes/post.routes";
 import commentRouter from "./routes/comment.routes";
 import connectToDatabase from "./database/mongodb";
+import errorMiddleware from "./middlewares/error.middleware";
 
 const app = express();
 
-app.use("api/v1/auth", authRouter);
-app.use("api/v1/users", userRouter);
-app.use("api/v1/posts", postRouter);
-app.use("api/v1/comments", commentRouter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/posts", postRouter);
+app.use("/api/v1/comments", commentRouter);
+
+app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
