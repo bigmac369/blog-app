@@ -1,24 +1,18 @@
 import { Router } from "express";
+import { signUp } from "../controllers/auth.controller";
+import { signIn } from "../controllers/auth.controller";
+import { signOut } from "../controllers/auth.controller";
 
 const authRouter = Router();
 
 //Register user
-authRouter.post("/sign-up", (req, res) => {
-  // Logic for registering a user
-  res.send("User signed up successfully!");
-});
+authRouter.post("/sign-up", signUp);
 
 //Login user
-authRouter.post("/log-in", (req, res) => {
-  // Logic for logging in a user
-  res.send("User logged in successfully!");
-});
+authRouter.post("/log-in", signIn);
 
 //Logout user
-authRouter.post("/sign-out", (req, res) => {
-  // Logic for logging out a user
-  res.send("User signed out successfully!");
-});
+authRouter.post("/sign-out", signOut);
 
 export default authRouter;
 // This code defines an Express router for handling authentication-related routes in a web application.

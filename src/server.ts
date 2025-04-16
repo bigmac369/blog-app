@@ -1,6 +1,6 @@
 import express from "express";
 
-import { PORT } from "./config/env.js";
+import { PORT } from "./config/env";
 
 import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
