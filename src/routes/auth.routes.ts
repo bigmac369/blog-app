@@ -9,7 +9,7 @@ const authRouter = Router();
 authRouter.post("/sign-up", signUp);
 
 //Login user
-authRouter.post("/log-in", signIn);
+authRouter.post("/sign-in", signIn);
 
 //Logout user
 authRouter.post("/sign-out", signOut);

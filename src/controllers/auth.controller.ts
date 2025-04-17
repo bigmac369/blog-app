@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import User from "../models/user.models";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -89,7 +88,17 @@ export const signIn = async (req, res, next) => {
         expiresIn: "1h",
       }
     );
-  } catch (error) {}
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: {
+        token,
+        user: existingUser,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const signOut = async (req, res, next) => {};
