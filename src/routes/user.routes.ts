@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { getAllUsers, getUser } from "../controllers/user.controller";
+import {
+  deleteUser,
+  getAllUsers,
+  getUser,
+  updateUser,
+} from "../controllers/user.controller";
 import authorize from "../middlewares/auth.middleware"; // Import the authorize middleware
 
 const userRouter = Router();
@@ -17,18 +22,10 @@ userRouter.post("/", (req, res) => {
 });
 
 //Update user by ID
-userRouter.put("/:id", (req, res) => {
-  const userId = req.params.id;
-  // Logic for updating a user by ID
-  res.send(`User with ID: ${userId} updated successfully!`);
-});
+userRouter.put("/:id", updateUser);
 
 //Delete user by ID
-userRouter.delete("/:id", (req, res) => {
-  const userId = req.params.id;
-  // Logic for deleting a user by ID
-  res.send(`User with ID: ${userId} deleted successfully!`);
-});
+userRouter.delete("/:id", deleteUser);
 
 export default userRouter;
 // This code defines an Express router for handling user-related routes in a web application.

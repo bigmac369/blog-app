@@ -15,10 +15,11 @@ export const signUp = async (
     // Check if user exists
     const isUserExist = await User.findOne({ email });
     if (isUserExist) {
-      return res.status(400).json({
+      res.status(400).json({
         status: 400,
         message: "User already exists",
       });
+      return;
     }
 
     // Hash password
@@ -65,10 +66,11 @@ export const signIn = async (
     // Check if user exists
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
-      return res.status(400).json({
+      res.status(400).json({
         status: 400,
         message: "User not found",
       });
+      return;
     }
     //If user exists, check password
     const isPasswordValid = await bcrypt.compare(
@@ -76,10 +78,11 @@ export const signIn = async (
       existingUser.password
     );
     if (!isPasswordValid) {
-      return res.status(400).json({
+      res.status(400).json({
         status: 400,
         message: "Invalid email or password",
       });
+      return;
     }
     //Generate JWT token
 

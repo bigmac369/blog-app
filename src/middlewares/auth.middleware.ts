@@ -3,11 +3,9 @@ import { JWT_SECRET } from "../config/env";
 import jwt from "jsonwebtoken";
 import User from "../models/user.models";
 
-const authorize = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+const authorize = async (req: Request, res: Response, next: NextFunction) => {
+  //We return void because middlewareis suppose toend the response or move to next middleware
+
   try {
     let token;
 
@@ -26,9 +24,6 @@ const authorize = async (
       return;
     }
 
-    if (!JWT_SECRET) {
-      throw new Error("JWT_SECRET is not defined");
-    }
     const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload; // Type assertion to specify the type of decoded token
 
     const user = await User.findById(decoded.userId).select("-password"); // Exclude password field from the response
