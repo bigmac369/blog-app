@@ -2,8 +2,13 @@ import User from "../models/user.models";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/env";
+import { Request, Response, NextFunction } from "express";
 
-export const signUp = async (req, res, next) => {
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { name, email, password } = req.body;
 
@@ -27,14 +32,12 @@ export const signUp = async (req, res, next) => {
       password: hashedPassword,
     });
 
-    if (!JWT_SECRET) {
-      throw new Error("JWT_SECRET is not defined");
-    }
     const token = jwt.sign({ userId: newUser._id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
     const { password: _, ...userWithoutPassword } = newUser.toObject(); // Exclude password from user data before sending response
+
     res.status(201).json({
       success: true,
       message: "User created successfully",
@@ -52,7 +55,11 @@ export const signUp = async (req, res, next) => {
   }
 };
 
-export const signIn = async (req, res, next) => {
+export const signIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password } = req.body;
   try {
     // Check if user exists
@@ -76,9 +83,10 @@ export const signIn = async (req, res, next) => {
     }
     //Generate JWT token
 
-    if (!JWT_SECRET) {
-      throw new Error("JWT_SECRET is not defined");
-    }
+    // if (!JWT_SECRET) {
+    //   throw new Error("JWT_SECRET is not defined");
+    // }
+    ///////Been moved to env.ts, we want app to fail fast during app startup, not when a user trying to login
     const token = jwt.sign(
       {
         userId: existingUser._id,
@@ -88,17 +96,45 @@ export const signIn = async (req, res, next) => {
         expiresIn: "1h",
       }
     );
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      data: {
-        token,
-        user: existingUser,
-      },
-    });
+
+    res
+      .cookie("token", token, {
+        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+        secure: false, // Use secure cookies in production
+        maxAge: 3600000, // 1 hour in milliseconds
+        sameSite: "none", // Helps prevent CSRF attacks
+      })
+      .status(200)
+      .json({
+        success: true,
+        message: "Login successful",
+        data: {
+          token,
+          user: existingUser,
+        },
+      });
   } catch (error) {
     next(error);
   }
 };
 
-export const signOut = async (req, res, next) => {};
+export const signOut = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false, // Use secure cookies in production
+      sameSite: "none",
+      maxAge: 0, // Set maxAge to 0 to delete the cookie immediately
+    });
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};

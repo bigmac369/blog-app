@@ -1,6 +1,11 @@
 import User from "../models/user.models";
+import { Request, Response, NextFunction } from "express";
 
-export const getAllUsers = async (req, res, next) => {
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const users = await User.find();
     res.status(200).json({
@@ -13,7 +18,11 @@ export const getAllUsers = async (req, res, next) => {
   }
 };
 
-export const getUser = async (req, res, next) => {
+export const getUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const user = await User.findById(req.params.id).select("-password"); // Exclude password field from the response
   if (!user) {
     return res.status(404).json({
