@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Post from "../models/post.models";
 
 // import Comment from "../models/Comment";
@@ -23,23 +23,28 @@ export const getAllPosts = async (
 
 export const createPost = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user.userId; // Assuming you have the user ID in the request object
+    const userId = req.user._id; // Assuming you have the user ID in the request object
+
     const { title, content } = req.body;
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
-    const newPost = new Post({ title, content, userId });
+    const newPost = new Post({
+      title,
+      content,
+      author: userId, // Use the user ID from the request object
+    });
     await newPost.save();
     res.status(201).json(newPost);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
-    return;
+    next(error); // Pass the error to the next middleware (error handler)
   }
 };
 
@@ -92,13 +97,16 @@ export const deletePost = async (
 ): Promise<void> => {
   try {
     const postId = req.params.id;
-    const userId = req.user.userId; // Assuming you have the user ID in the request object
+
+    const userId = req.user._id; // Assuming you have the user ID in the request object
+
     const post = await Post.findById(postId);
+
     if (!post) {
       res.status(404).json({ message: "Post not found" });
       return;
     }
-    if (post.author.toString() !== userId) {
+    if (post.author.toString() !== userId.toString()) {
       res
         .status(403)
         .json({ message: "You are not authorized to delete this post" });
@@ -114,19 +122,20 @@ export const deletePost = async (
 };
 
 export const getAllPostsByUser = async (
-  req: Request, res: Response
+  req: Request,
+  res: Response
 ): Promise<void> => {
-    try {
-        const userId = req.user.userId; // Assuming you have the user ID in the request object
-        const posts = await Post.find({ author: userId });
-        if (!posts) {
-        res.status(404).json({ message: "No posts found for this user" });
-        return;
-        }
-        res.status(200).json(posts);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-        return;
+  try {
+    const userId = req.user.userId; // Assuming you have the user ID in the request object
+    const posts = await Post.find({ author: userId });
+    if (!posts) {
+      res.status(404).json({ message: "No posts found for this user" });
+      return;
     }
-}
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+    return;
+  }
+};

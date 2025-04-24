@@ -28,5 +28,5 @@ const postSchema = new Schema(
   { timestamps: true }
 ); //creates createdAt and updatedAt fields automatically
 
-const Post = mongoose.model("User", postSchema);
+const Post = mongoose.model("Post", postSchema);
 export default Post;

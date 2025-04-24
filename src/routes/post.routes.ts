@@ -7,6 +7,7 @@ import {
   deletePost,
   getAllPostsByUser,
 } from "../controllers/post.controller";
+import authorize from "../middlewares/auth.middleware";
 
 const postRouter = Router();
 
@@ -14,16 +15,16 @@ const postRouter = Router();
 postRouter.get("/", getAllPosts);
 
 //Create post
-postRouter.post("/", createPost);
+postRouter.post("/", authorize, createPost);
 
 //Get post by ID
 postRouter.get("/:id", getPost);
 
 //Update post by ID
-postRouter.put("/:id", updatePost);
+postRouter.put("/:id", authorize, updatePost);
 
 //Delete post by ID
-postRouter.delete("/:id", deletePost);
+postRouter.delete("/:id", authorize, deletePost);
 
 //Get all posts by a specific user
 postRouter.get("/user/:userId", getAllPostsByUser);
