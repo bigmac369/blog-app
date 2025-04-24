@@ -3,58 +3,74 @@ import Post from "../models/post.models";
 
 // import Comment from "../models/Comment";
 
-export const getAllPosts = async (req: Request, res: Response) => {
+export const getAllPosts = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const posts = await Post.find();
     if (!posts) {
-      return res.status(404).json({ message: "No posts found" });
+      res.status(404).json({ message: "No posts found" });
+      return;
     }
-    return res.status(200).json(posts);
+    res.status(200).json(posts);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
+    return;
   }
 };
 
-export const createPost = async (req: Request, res: Response) => {
+export const createPost = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const userId = req.user.userId; // Assuming you have the user ID in the request object
     const { title, content } = req.body;
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
 
     const newPost = new Post({ title, content, userId });
     await newPost.save();
-    return res.status(201).json(newPost);
+    res.status(201).json(newPost);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
+    return;
   }
 };
 
-export const getPost = async (req: Request, response: Response) => {
+export const getPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const postId = req.params.id;
     const post = await Post.findById(postId);
     if (!post) {
-      return response.status(404).json({ message: "Post not found" });
+      res.status(404).json({ message: "Post not found" });
+      return;
     }
-    return response.status(200).json(post);
+    res.status(200).json(post);
   } catch (error) {
     console.error(error);
-    return response.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
+    return;
   }
 };
 
-export const updatePost = async (req: Request, res: Response) => {
+export const updatePost = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const postId = req.params.id;
   const userId = req.user.userId; // Assuming you have the user ID in the request object from auth middleware
   const { title, content } = req.body;
   try {
     const post = await Post.findById(postId);
     if (post?.author.toString() !== userId) {
-      return res.status(403).json({ message: "Unauthorized" });
+      res.status(403).json({ message: "Unauthorized" });
+      return;
     }
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
@@ -62,30 +78,55 @@ export const updatePost = async (req: Request, res: Response) => {
       { new: true }
     );
 
-    return res.status(200).json(updatedPost);
+    res.status(200).json(updatedPost);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
+    return;
   }
 };
 
-export const deletePost = async (req: Request, res: Response) => {
+export const deletePost = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const postId = req.params.id;
     const userId = req.user.userId; // Assuming you have the user ID in the request object
     const post = await Post.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+      res.status(404).json({ message: "Post not found" });
+      return;
     }
     if (post.author.toString() !== userId) {
-      return res
+      res
         .status(403)
         .json({ message: "You are not authorized to delete this post" });
+      return;
     }
     await post.deleteOne();
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error, something went wrong" });
+    return;
   }
 };
+
+export const getAllPostsByUser = async (
+  req: Request, res: Response
+): Promise<void> => {
+    try {
+        const userId = req.user.userId; // Assuming you have the user ID in the request object
+        const posts = await Post.find({ author: userId });
+        if (!posts) {
+        res.status(404).json({ message: "No posts found for this user" });
+        return;
+        }
+        res.status(200).json(posts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+        return;
+    }
+}
