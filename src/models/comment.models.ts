@@ -15,3 +15,6 @@ const commentSchema = new Schema({
     required: [true, "Comment post is required"],
   },
 });
+
+const Comment = mongoose.model("Comment", commentSchema);
+export default Comment;

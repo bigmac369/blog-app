@@ -1,6 +1,4 @@
-import { kMaxLength } from "buffer";
 import mongoose from "mongoose";
-import { ref, title } from "process";
 
 const { Schema } = mongoose;
 
@@ -29,3 +27,6 @@ const postSchema = new Schema(
   },
   { timestamps: true }
 ); //creates createdAt and updatedAt fields automatically
+
+const Post = mongoose.model("User", postSchema);
+export default Post;
