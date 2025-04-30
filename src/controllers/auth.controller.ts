@@ -4,13 +4,9 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/env";
 import { Request, Response, NextFunction } from "express";
 
-export const signUp = async (
-  req: Request,
-  res: Response,
-  
-) => {
+export const signUp = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     // Check if user exists
     const isUserExist = await User.findOne({ email });
@@ -28,7 +24,7 @@ export const signUp = async (
 
     // Create new user
     const newUser = await User.create({
-      name: name,
+      name: username,
       email: email,
       password: hashedPassword,
     });
@@ -37,7 +33,14 @@ export const signUp = async (
       expiresIn: "1h",
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = newUser.toObject(); // Exclude password from user data before sending response
+
+    res.cookie("token", token, {
+      httpOnly: true, // Prevents client-side access to the cookie
+      secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+      maxAge: 3600000, // 1 hour expiration
+    });
 
     res.status(201).json({
       success: true,
@@ -100,6 +103,11 @@ export const signIn = async (
       }
     );
 
+    // Exclude password from user data before sending response
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _password, ...userWithoutPassword } =
+      existingUser.toObject();
+
     res
       .cookie("token", token, {
         httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
@@ -113,7 +121,7 @@ export const signIn = async (
         message: "Login successful",
         data: {
           token,
-          user: existingUser,
+          user: userWithoutPassword,
         },
       });
   } catch (error) {
