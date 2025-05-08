@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Post from "../models/post.models";
+import mongoose from "mongoose";
 
 // import Comment from "../models/Comment";
 
@@ -27,9 +28,10 @@ export const createPost = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    console.log(req.user);
     const userId = req.user._id; // Assuming you have the user ID in the request object
-
-    const { title, content } = req.body;
+    // console.log("User ID from request:", userId);
+    const { title, summary, content } = req.body;
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
       return;
@@ -37,6 +39,7 @@ export const createPost = async (
 
     const newPost = new Post({
       title,
+      summary,
       content,
       author: userId, // Use the user ID from the request object
     });
@@ -51,6 +54,11 @@ export const createPost = async (
 export const getPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const postId = req.params.id;
+    // Check if the ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ message: "Invalid post ID format." });
+      return;
+    }
     const post = await Post.findById(postId);
     if (!post) {
       res.status(404).json({ message: "Post not found" });

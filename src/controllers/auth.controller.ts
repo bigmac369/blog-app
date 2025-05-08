@@ -109,11 +109,10 @@ export const signIn = async (
       existingUser.toObject();
 
     res
-      .cookie("token", token, {
-        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-        secure: false, // Use secure cookies in production
-        maxAge: 3600000, // 1 hour in milliseconds
-        sameSite: "none", // Helps prevent CSRF attacks
+      .cookie("access_token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
       })
       .status(200)
       .json({
@@ -135,9 +134,9 @@ export const signOut = async (
   next: NextFunction
 ) => {
   try {
-    res.clearCookie("token", {
+    res.clearCookie("access_token", {
       httpOnly: true,
-      secure: false, // Use secure cookies in production
+      secure: true, // Use secure cookies in production
       sameSite: "none",
       maxAge: 0, // Set maxAge to 0 to delete the cookie immediately
     });

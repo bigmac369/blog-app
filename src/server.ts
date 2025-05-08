@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import { PORT } from "./config/env";
 
@@ -13,9 +14,27 @@ import errorMiddleware from "./middlewares/error.middleware";
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // EXACT frontend origin
+    credentials: true, // allow cookies, Authorization headers, etc.
+  })
+);
+app.get("/", (req, res) => {
+  res.cookie("sky", "blue", {
+    httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+    secure: true, // Use secure cookies in production
+    sameSite: "none", // Helps prevent CSRF attacks
+    maxAge: 3600000, // 1 hour in milliseconds
+  });
+  res.cookie("grass", "green");
+
+  res.send("Hello World!");
+});
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
