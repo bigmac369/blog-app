@@ -77,17 +77,24 @@ export const updatePost = async (
   res: Response
 ): Promise<void> => {
   const postId = req.params.id;
-  const userId = req.user.userId; // Assuming you have the user ID in the request object from auth middleware
-  const { title, content } = req.body;
+  const userId = req.user._id; // Assuming you have the user ID in the request object from auth middleware
+  const { title, summary, content } = req.body;
   try {
+    
+    console.log(`postId:${postId}, userId:${userId}`);
     const post = await Post.findById(postId);
-    if (post?.author.toString() !== userId) {
+    if (!post) {
+      res.status(404).json({ message: "Post not found" });
+      return;
+    }
+    console.log(post);
+    if (post?.author.toString() !== userId.toString()) {
       res.status(403).json({ message: "Unauthorized" });
       return;
     }
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
-      { title, content },
+      { title, summary, content },
       { new: true }
     );
 
