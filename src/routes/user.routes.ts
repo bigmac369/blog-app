@@ -22,7 +22,7 @@ userRouter.post("/", (req, res) => {
 });
 
 //Update user by ID
-userRouter.put("/:id", updateUser);
+userRouter.put("/:id", authorize, updateUser);
 
 //Delete user by ID
 userRouter.delete("/:id", deleteUser);

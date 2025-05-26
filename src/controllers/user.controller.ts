@@ -50,11 +50,14 @@ export const updateUser = async (
 ) => {
   try {
     const userId = req.user._id; // Assuming you have the user ID in the request object
-    const { name, email, password, newPassword, confirmPassword } = req.body;
-
+    console.log("User ID:", userId);
+    const { username, email, password, newPassword, confirmPassword } =
+      req.body;
+    console.log("Request Body:", req.body);
     //Get user from the database
-    const user = await User.findById(userId).select("-password"); // Exclude password field from the response
-
+    // .select("-password");
+    const user = await User.findById(userId); // Exclude password field from the response
+    console.log(user);
     if (!user) {
       res.status(404).json({
         success: false,
@@ -63,8 +66,8 @@ export const updateUser = async (
       return;
     }
 
-    //Handle email and password updates
-    if (name) user.name = name;
+    //Handle username and email updates
+    if (username) user.name = username;
 
     if (email && email !== user.email) {
       const emailExists = await User.findOne({ email });
@@ -87,11 +90,8 @@ export const updateUser = async (
         });
         return;
       }
-
-      const isPasswordMatch = await bcrypt.compare(
-        password,
-        user.password
-      );
+      // Check if current password is correct
+      const isPasswordMatch = await bcrypt.compare(password, user.password);
       if (!isPasswordMatch) {
         res.status(400).json({
           success: false,
@@ -99,11 +99,19 @@ export const updateUser = async (
         });
         return;
       }
-
+      // Check if new password and confirm password match
       if (newPassword !== confirmPassword) {
         res.status(400).json({
           success: false,
           message: "New password and confirm password do not match",
+        });
+        return;
+      }
+      // Check if new password is the same as current password
+      if (password === newPassword) {
+        res.status(400).json({
+          success: false,
+          message: "New password must be different from current password",
         });
         return;
       }
