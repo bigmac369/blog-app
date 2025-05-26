@@ -49,8 +49,8 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user.userId; // Assuming you have the user ID in the request object
-    const { name, email, password } = req.body;
+    const userId = req.user._id; // Assuming you have the user ID in the request object
+    const { name, email, password, newPassword, confirmPassword } = req.body;
 
     //Get user from the database
     const user = await User.findById(userId).select("-password"); // Exclude password field from the response
@@ -63,7 +63,9 @@ export const updateUser = async (
       return;
     }
 
-    //Check if email is changing and already exists
+    //Handle email and password updates
+    if (name) user.name = name;
+
     if (email && email !== user.email) {
       const emailExists = await User.findOne({ email });
       if (emailExists) {
@@ -73,16 +75,43 @@ export const updateUser = async (
         });
         return;
       }
+      user.email = email;
     }
 
-    //Update user details
-    if (name) user.name = name;
-    if (email) user.email = email;
+    // Handle password update only if currentPassword and newPassword are provided
+    if (password || newPassword || confirmPassword) {
+      if (!password || !newPassword || !confirmPassword) {
+        res.status(400).json({
+          success: false,
+          message: "All password fields are required",
+        });
+        return;
+      }
 
-    if (password) {
+      const isPasswordMatch = await bcrypt.compare(
+        password,
+        user.password
+      );
+      if (!isPasswordMatch) {
+        res.status(400).json({
+          success: false,
+          message: "Current password is incorrect",
+        });
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        res.status(400).json({
+          success: false,
+          message: "New password and confirm password do not match",
+        });
+        return;
+      }
+
       const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+      user.password = await bcrypt.hash(newPassword, salt);
     }
+
     await user.save();
 
     // Exclude password from response
