@@ -15,7 +15,7 @@ const authorize = async (req: Request, res: Response, next: NextFunction) => {
       // console.log("Token from headers:", token);
       // }
       const token = req.cookies.access_token; // Get the token from cookies
-      console.log(req.cookies); // Log all cookies for debugging
+      // console.log(req.cookies); // Log all cookies for debugging
       // console.log("Token from cookies:", token);
 
       if (!token) {

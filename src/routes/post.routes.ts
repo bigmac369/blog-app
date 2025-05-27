@@ -27,7 +27,7 @@ postRouter.put("/:id", authorize, updatePost);
 postRouter.delete("/:id", authorize, deletePost);
 
 //Get all posts by a specific user
-postRouter.get("/user/:userId", getAllPostsByUser);
+postRouter.get("/user/:userId", authorize, getAllPostsByUser);
 
 export default postRouter;
 // This code defines an Express router for handling post-related routes in a web application.

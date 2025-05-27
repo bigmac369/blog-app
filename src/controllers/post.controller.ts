@@ -9,7 +9,7 @@ export const getAllPosts = async (
   res: Response
 ): Promise<void> => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().populate("author", "name"); // Populate the author field with username
     if (!posts) {
       res.status(404).json({ message: "No posts found" });
       return;
@@ -80,7 +80,6 @@ export const updatePost = async (
   const userId = req.user._id; // Assuming you have the user ID in the request object from auth middleware
   const { title, summary, content } = req.body;
   try {
-    
     console.log(`postId:${postId}, userId:${userId}`);
     const post = await Post.findById(postId);
     if (!post) {
@@ -141,8 +140,9 @@ export const getAllPostsByUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const userId = req.user.userId; // Assuming you have the user ID in the request object
+    const userId = req.user._id; // Assuming you have the user ID in the request object
     const posts = await Post.find({ author: userId });
+
     if (!posts) {
       res.status(404).json({ message: "No posts found for this user" });
       return;
