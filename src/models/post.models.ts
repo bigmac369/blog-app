@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Comment from "./comment.models";
 
 const { Schema } = mongoose;
 
@@ -32,6 +33,17 @@ const postSchema = new Schema(
   },
   { timestamps: true }
 ); //creates createdAt and updatedAt fields automatically
+
+postSchema.pre("deleteOne", async function (next) {
+  try {
+    const filter = this.getFilter();
+    const postId = filter._id;
+    await Comment.deleteMany({ post: postId });
+    next();
+  } catch (err) {
+    next(err as Error);
+  }
+});
 
 const Post = mongoose.model("Post", postSchema);
 export default Post;

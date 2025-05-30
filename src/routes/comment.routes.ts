@@ -9,17 +9,17 @@ import authorize from "../middlewares/auth.middleware";
 
 const commentRouter = Router();
 
-// Get all comments
-commentRouter.get("/:id/comments", getAllCommentsOfPost);
+// Get all comments of a post
+commentRouter.get("/post/:postId", getAllCommentsOfPost);
 
 //Add comment to a post
-commentRouter.post("/:id/comments", authorize, createComment);
+commentRouter.post("/createComment", authorize, createComment);
 
 //Update comment
-commentRouter.put("/comments/:id", updateComment);
+commentRouter.put("/:id", authorize, updateComment);
 
 //Delete comment
-commentRouter.delete("/comments/:id", deleteComment);
+commentRouter.delete("/:id", authorize, deleteComment);
 
 export default commentRouter;
 // This code defines an Express router for handling comment-related routes in a web application.

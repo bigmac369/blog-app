@@ -7,20 +7,25 @@ export const createComment = async (
   res: Response,
   next: NextFunction
 ) => {
+  const { text, postId } = req.body;
   try {
     const userId = req.user._id; // Assuming you have the user ID in the request object
-    const post = await Post.findById(req.params.postId);
+
+    const post = await Post.findById(postId);
     if (!post) {
       res.status(404).json({ message: "Post not found" });
       return;
     }
-    const { text } = req.body;
+
     const newComment = await Comment.create({
       text,
       author: userId, // Use the user ID from the request object
       post: post._id,
     });
-    res.status(201).json(newComment);
+
+    const populatedComment = await newComment.populate("author", "name email"); // or whatever fields you need
+    // console.log("New Comment Created:", populatedComment);
+    res.status(201).json(populatedComment);
   } catch (error) {
     next(error);
   }
@@ -53,7 +58,7 @@ export const updateComment = async (
       commentId,
       { text },
       { new: true }
-    );
+    ).populate("author", "name email"); // or whatever fields you need
     res.status(200).json(updatedComment);
   } catch (error) {
     next(error);
@@ -68,6 +73,7 @@ export const deleteComment = async (
   try {
     const userId = req.user._id; // Assuming you have the user ID in the request object
     const commentId = req.params.id;
+    console.log(req.params);
     //check if the comment exists
     const comment = await Comment.findById(commentId);
     if (!comment) {
@@ -95,7 +101,8 @@ export const getAllCommentsOfPost = async (
   next: NextFunction
 ) => {
   try {
-    const postId = req.params;
+    const postId = req.params.postId;
+    console.log(postId);
     //check if the post exists
     const post = await Post.findById(postId);
     if (!post) {
