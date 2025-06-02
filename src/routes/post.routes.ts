@@ -4,6 +4,7 @@ import {
   getPost,
   createPost,
   updatePost,
+  updatePostImage,
   deletePost,
   getAllPostsByUser,
 } from "../controllers/post.controller";
@@ -22,6 +23,9 @@ postRouter.get("/:id", getPost);
 
 //Update post by ID
 postRouter.put("/:id", authorize, updatePost);
+
+//Update post image by ID
+postRouter.patch("/:id/image", authorize, updatePostImage)
 
 //Delete post by ID
 postRouter.delete("/:id", authorize, deletePost);

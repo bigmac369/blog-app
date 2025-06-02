@@ -30,6 +30,11 @@ const postSchema = new Schema(
         ref: "Comment",
       },
     ],
+    imageurl: {
+      type: String,
+      default: "https://via.placeholder.com/150",
+      trim: true,
+    },
   },
   { timestamps: true }
 ); //creates createdAt and updatedAt fields automatically

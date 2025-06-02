@@ -24,17 +24,20 @@ app.use(
     credentials: true, // allow cookies, Authorization headers, etc.
   })
 );
-app.get("/", (req, res) => {
-  res.cookie("sky", "blue", {
-    httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-    secure: true, // Use secure cookies in production
-    sameSite: "none", // Helps prevent CSRF attacks
-    maxAge: 3600000, // 1 hour in milliseconds
-  });
-  res.cookie("grass", "green");
 
-  res.send("Hello World!");
-});
+// Serve static files from uploads directory
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.get("/", (req, res) => {
+//   res.cookie("sky", "blue", {
+//     httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+//     secure: true, // Use secure cookies in production
+//     sameSite: "none", // Helps prevent CSRF attacks
+//     maxAge: 3600000, // 1 hour in milliseconds
+//   });
+//   res.cookie("grass", "green");
+
+//   res.send("Hello World!");
+// });
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);

@@ -28,10 +28,10 @@ export const createPost = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    console.log(req.user);
+    
     const userId = req.user._id; // Assuming you have the user ID in the request object
-    // console.log("User ID from request:", userId);
-    const { title, summary, content } = req.body;
+    
+    const { title, summary, content, imageurl } = req.body;
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
       return;
@@ -41,6 +41,7 @@ export const createPost = async (
       title,
       summary,
       content,
+      imageurl,
       author: userId, // Use the user ID from the request object
     });
     await newPost.save();
@@ -59,7 +60,7 @@ export const getPost = async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ message: "Invalid post ID format." });
       return;
     }
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("author", "name"); // Populate the author field with username
     if (!post) {
       res.status(404).json({ message: "Post not found" });
       return;
@@ -102,6 +103,68 @@ export const updatePost = async (
     console.error(error);
     res.status(500).json({ message: "Server error" });
     return;
+  }
+};
+
+export const updatePostImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const postId = req.params.id; // Post ID from URL
+    const { imageurl } = req.body; // Firebase image URL from request body
+    const userId = req.user._id; // User ID from auth middleware
+
+    // Validation
+    if (!userId) {
+      res.status(401).json({ 
+        success: false,
+        message: "Unauthorized" 
+      });
+      return;
+    }
+
+    if (!imageurl) {
+      res.status(400).json({ 
+        success: false,
+        message: "Image URL is required" 
+      });
+      return;
+    }
+
+    // Find the post
+    const post = await Post.findById(postId);
+    if (!post) {
+      res.status(404).json({ 
+        success: false,
+        message: "Post not found" 
+      });
+      return;
+    }
+
+    // Check if user owns the post
+    if (post.author.toString() !== userId.toString()) {
+      res.status(403).json({ 
+        success: false,
+        message: "You can only update your own posts" 
+      });
+      return;
+    }
+
+    // Update the post with the image URL
+    post.imageurl = imageurl;
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      data: post,
+      message: "Post image updated successfully"
+    });
+
+  } catch (error) {
+    console.error("Error updating post image:", error);
+    next(error);
   }
 };
 
