@@ -9,7 +9,9 @@ export const getAllPosts = async (
   res: Response
 ): Promise<void> => {
   try {
-    const posts = await Post.find().populate("author", "name"); // Populate the author field with username
+    const posts = await Post.find()
+      .sort({ createdAt: -1 })
+      .populate("author", "name avatar"); // Populate the author field with username
     if (!posts) {
       res.status(404).json({ message: "No posts found" });
       return;
@@ -28,9 +30,8 @@ export const createPost = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    
     const userId = req.user._id; // Assuming you have the user ID in the request object
-    
+
     const { title, summary, content, imageurl } = req.body;
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -118,17 +119,17 @@ export const updatePostImage = async (
 
     // Validation
     if (!userId) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: "Unauthorized" 
+        message: "Unauthorized",
       });
       return;
     }
 
     if (!imageurl) {
-      res.status(400).json({ 
+      res.status(400).json({
         success: false,
-        message: "Image URL is required" 
+        message: "Image URL is required",
       });
       return;
     }
@@ -136,18 +137,18 @@ export const updatePostImage = async (
     // Find the post
     const post = await Post.findById(postId);
     if (!post) {
-      res.status(404).json({ 
+      res.status(404).json({
         success: false,
-        message: "Post not found" 
+        message: "Post not found",
       });
       return;
     }
 
     // Check if user owns the post
     if (post.author.toString() !== userId.toString()) {
-      res.status(403).json({ 
+      res.status(403).json({
         success: false,
-        message: "You can only update your own posts" 
+        message: "You can only update your own posts",
       });
       return;
     }
@@ -159,9 +160,8 @@ export const updatePostImage = async (
     res.status(200).json({
       success: true,
       data: post,
-      message: "Post image updated successfully"
+      message: "Post image updated successfully",
     });
-
   } catch (error) {
     console.error("Error updating post image:", error);
     next(error);

@@ -51,8 +51,14 @@ export const updateUser = async (
   try {
     const userId = req.user._id; // Assuming you have the user ID in the request object
     console.log("User ID:", userId);
-    const { username, email, password, newPassword, confirmPassword } =
-      req.body;
+    const {
+      username,
+      email,
+      password,
+      newPassword,
+      confirmPassword,
+      profileImage,
+    } = req.body;
     console.log("Request Body:", req.body);
     //Get user from the database
     // .select("-password");
@@ -79,6 +85,10 @@ export const updateUser = async (
         return;
       }
       user.email = email;
+    }
+
+    if (profileImage) {
+      user.avatar = profileImage;
     }
 
     // Handle password update only if currentPassword and newPassword are provided
